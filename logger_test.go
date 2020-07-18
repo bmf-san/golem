@@ -54,5 +54,3 @@ func TestAll(t *testing.T) {
 	logger.Warn("warn")
 	logger.Info("info")
 }
-
-// TODO: Wrte more useful tests.

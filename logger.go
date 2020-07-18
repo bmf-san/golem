@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"os"
-	"runtime"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -48,11 +46,9 @@ type Logger struct {
 
 // An Entry represents a entry.
 type Entry struct {
-	Level    string    `json:"level"`
-	Time     time.Time `json:"time"` // UTC
-	File     string    `json:"file"`
-	FuncName string    `json:"funcName"`
-	Message  string    `json:"message"`
+	Level   string    `json:"level"`
+	Time    time.Time `json:"time"` // UTC
+	Message string    `json:"message"`
 }
 
 // NewLogger creates a logger.
@@ -94,42 +90,22 @@ func (l *Logger) SetOutput(w io.Writer) {
 }
 
 // formatHeader writes log header.
-func (l *Logger) formatHeader(t time.Time, file string, line int, funcName string) {
+func (l *Logger) formatHeader(t time.Time) {
 	l.entry.Time = t.UTC()
-	l.entry.File = file + ":" + strconv.Itoa(line)
-	l.entry.FuncName = funcName
 }
 
 // OutputJSON outputs logs.
 func (l *Logger) OutputJSON(level string, msg string) error {
 	l.entry.Level = level
 	l.entry.Message = msg
+	l.entry.Time = time.Now().UTC()
 
-	now := time.Now()
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	l.mu.Unlock()
-	i := 0
-	var err error
-	for {
-		pt, file, line, ok := runtime.Caller(i)
-		if !ok {
-			break
-		}
-		funcName := runtime.FuncForPC(pt).Name()
-		l.formatHeader(now, file, line, funcName)
-
-		bytes, err := json.Marshal(l.entry)
-		if err != nil {
-			return err
-		}
-		bytes = append(bytes, '\n')
-
-		_, err = l.out.Write(bytes)
-		i++
+	bytes, err := json.Marshal(l.entry)
+	if err != nil {
+		return err
 	}
-	l.mu.Lock()
+	bytes = append(bytes, '\n')
 
+	_, err = l.out.Write(bytes)
 	return err
 }
