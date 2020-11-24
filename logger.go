@@ -8,8 +8,16 @@ import (
 	"time"
 )
 
-// Level is log levels.
-type Level int8
+const (
+	// LevelInfo is something notable infomation.
+	LevelInfo int = iota
+	// LevelWarn is warning.
+	LevelWarn
+	// LevelError is unexpected runtime error.
+	LevelError
+	// LevelFatal is an abend error.
+	LevelFatal
+)
 
 const (
 	// LevelTextInfo is the text for info.
@@ -20,21 +28,18 @@ const (
 	LevelTextError = "error"
 	// LevelTextFatal is the text for fatal.
 	LevelTextFatal = "fatal"
-	// LevelInfo is something notable infomation.
-	LevelInfo Level = iota
-	// LevelWarn is warning.
-	LevelWarn
-	// LevelError is unexpected runtime error.
-	LevelError
-	// LevelFatal is an abend error.
-	LevelFatal
 )
 
-var levelText = map[Level]string{
+var levelText = map[int]string{
 	LevelInfo:  LevelTextInfo,
 	LevelWarn:  LevelTextWarn,
 	LevelError: LevelTextError,
 	LevelFatal: LevelTextFatal,
+}
+
+// LevelText returns the text of level.
+func LevelText(level int) string {
+	return levelText[level]
 }
 
 // A Logger represents a logger.
@@ -42,7 +47,7 @@ type Logger struct {
 	mu        sync.Mutex
 	out       io.Writer
 	entry     *Entry
-	threshold Level
+	threshold int
 	location  *time.Location
 }
 
@@ -54,7 +59,7 @@ type Entry struct {
 }
 
 // NewLogger creates a logger.
-func NewLogger(threshold Level, location *time.Location) *Logger {
+func NewLogger(threshold int, location *time.Location) *Logger {
 	return &Logger{
 		entry:     &Entry{},
 		threshold: threshold,
@@ -66,7 +71,7 @@ func NewLogger(threshold Level, location *time.Location) *Logger {
 func (l *Logger) Info(message string) {
 	if LevelInfo >= l.threshold {
 		l.SetOutput(os.Stdout)
-		l.OutputJSON(levelText[LevelInfo], message)
+		l.OutputJSON(LevelText(LevelInfo), message)
 	}
 }
 
@@ -74,7 +79,7 @@ func (l *Logger) Info(message string) {
 func (l *Logger) Warn(message string) {
 	if LevelWarn >= l.threshold {
 		l.SetOutput(os.Stdout)
-		l.OutputJSON(levelText[LevelWarn], message)
+		l.OutputJSON(LevelText(LevelWarn), message)
 	}
 }
 
@@ -82,7 +87,7 @@ func (l *Logger) Warn(message string) {
 func (l *Logger) Error(message string) {
 	if LevelError >= l.threshold {
 		l.SetOutput(os.Stderr)
-		l.OutputJSON(levelText[LevelError], message)
+		l.OutputJSON(LevelText(LevelError), message)
 	}
 }
 
@@ -90,7 +95,7 @@ func (l *Logger) Error(message string) {
 func (l *Logger) Fatal(message string) {
 	if LevelFatal >= l.threshold {
 		l.SetOutput(os.Stderr)
-		l.OutputJSON(levelText[LevelFatal], message)
+		l.OutputJSON(LevelText(LevelFatal), message)
 	}
 }
 
