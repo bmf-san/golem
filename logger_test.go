@@ -3,6 +3,7 @@ package golem
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestString(t *testing.T) {
@@ -11,20 +12,20 @@ func TestString(t *testing.T) {
 		expected string
 	}{
 		{
-			actual:   FatalLevel.String(),
-			expected: "fatal",
-		},
-		{
-			actual:   ErrorLevel.String(),
-			expected: "error",
+			actual:   InfoLevel.String(),
+			expected: "info",
 		},
 		{
 			actual:   WarnLevel.String(),
 			expected: "warn",
 		},
 		{
-			actual:   InfoLevel.String(),
-			expected: "info",
+			actual:   ErrorLevel.String(),
+			expected: "error",
+		},
+		{
+			actual:   FatalLevel.String(),
+			expected: "fatal",
 		},
 	}
 
@@ -36,9 +37,13 @@ func TestString(t *testing.T) {
 }
 
 func TestNewLogger(t *testing.T) {
-	actual := NewLogger()
+	threshold := InfoLevel
+	location := time.FixedZone("Asia/Tokyo", 9*60*60)
+	actual := NewLogger(threshold, location)
 	expected := &Logger{
-		entry: &Entry{},
+		entry:     &Entry{},
+		threshold: threshold,
+		location:  location,
 	}
 
 	if !reflect.DeepEqual(actual, expected) {
@@ -47,10 +52,10 @@ func TestNewLogger(t *testing.T) {
 }
 
 func TestAll(t *testing.T) {
-	logger := NewLogger()
+	logger := NewLogger(InfoLevel, time.FixedZone("Asia/Tokyo", 9*60*60))
 
-	logger.Fatal("fatal")
-	logger.Error("error")
-	logger.Warn("warn")
 	logger.Info("info")
+	logger.Warn("warn")
+	logger.Error("error")
+	logger.Fatal("fatal")
 }
