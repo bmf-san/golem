@@ -6,6 +6,37 @@ import (
 	"time"
 )
 
+func TestLevelText(t *testing.T) {
+	cases := []struct {
+		expected string
+		item     int
+	}{
+		{
+			expected: LevelTextInfo,
+			item:     0,
+		},
+		{
+			expected: LevelTextWarn,
+			item:     1,
+		},
+		{
+			expected: LevelTextError,
+			item:     2,
+		},
+		{
+			expected: LevelTextFatal,
+			item:     3,
+		},
+	}
+
+	for _, c := range cases {
+		actual := LevelText(c.item)
+		if actual != c.expected {
+			t.Errorf("actual: %v expected: %v\n", actual, c.expected)
+		}
+	}
+}
+
 func TestNewLogger(t *testing.T) {
 	threshold := LevelInfo
 	location := time.FixedZone("Asia/Tokyo", 9*60*60)
