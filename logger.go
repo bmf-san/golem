@@ -12,29 +12,29 @@ import (
 type Level int8
 
 const (
-	// InfoLevel is something notable infomation.
-	InfoLevel Level = iota
-	// WarnLevel is warning.
-	WarnLevel
-	// ErrorLevel is unexpected runtime error.
-	ErrorLevel
-	// FatalLevel is an abend error.
-	FatalLevel
+	// LevelTextInfo is the text for info.
+	LevelTextInfo = "info"
+	// LevelTextWarn is the text for warn.
+	LevelTextWarn = "warn"
+	// LevelTextError is the text for error.
+	LevelTextError = "error"
+	// LevelTextFatal is the text for fatal.
+	LevelTextFatal = "fatal"
+	// LevelInfo is something notable infomation.
+	LevelInfo Level = iota
+	// LevelWarn is warning.
+	LevelWarn
+	// LevelError is unexpected runtime error.
+	LevelError
+	// LevelFatal is an abend error.
+	LevelFatal
 )
 
-// String converts constant to string.
-func (l Level) String() string {
-	switch l {
-	case InfoLevel:
-		return "info"
-	case WarnLevel:
-		return "warn"
-	case ErrorLevel:
-		return "error"
-	case FatalLevel:
-		return "fatal"
-	}
-	return ""
+var levelText = map[Level]string{
+	LevelInfo:  LevelTextInfo,
+	LevelWarn:  LevelTextWarn,
+	LevelError: LevelTextError,
+	LevelFatal: LevelTextFatal,
 }
 
 // A Logger represents a logger.
@@ -64,33 +64,33 @@ func NewLogger(threshold Level, location *time.Location) *Logger {
 
 // Info outputs a info level log.
 func (l *Logger) Info(message string) {
-	if InfoLevel >= l.threshold {
+	if LevelInfo >= l.threshold {
 		l.SetOutput(os.Stdout)
-		l.OutputJSON(InfoLevel.String(), message)
+		l.OutputJSON(levelText[LevelInfo], message)
 	}
 }
 
 // Warn outputs a warn level log.
 func (l *Logger) Warn(message string) {
-	if WarnLevel >= l.threshold {
+	if LevelWarn >= l.threshold {
 		l.SetOutput(os.Stdout)
-		l.OutputJSON(WarnLevel.String(), message)
+		l.OutputJSON(levelText[LevelWarn], message)
 	}
 }
 
 // Error outputs a error level log.
 func (l *Logger) Error(message string) {
-	if ErrorLevel >= l.threshold {
+	if LevelError >= l.threshold {
 		l.SetOutput(os.Stderr)
-		l.OutputJSON(ErrorLevel.String(), message)
+		l.OutputJSON(levelText[LevelError], message)
 	}
 }
 
 // Fatal outputs a fatal level log.
 func (l *Logger) Fatal(message string) {
-	if FatalLevel >= l.threshold {
+	if LevelFatal >= l.threshold {
 		l.SetOutput(os.Stderr)
-		l.OutputJSON(FatalLevel.String(), message)
+		l.OutputJSON(levelText[LevelFatal], message)
 	}
 }
 
